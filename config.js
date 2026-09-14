@@ -15,7 +15,7 @@ const CONFIG = {
     // 4. Go to Credentials → Create Credentials → API Key (Restrict it to HTTP referrers)
     // 5. Copy the API Key and paste it below
     // 6. Make sure your Google Sheet is shared publicly or with "Anyone with the link can view"
-    API_KEY: 'YOUR_GOOGLE_SHEETS_API_KEY', // ⚠️ REPLACE WITH YOUR ACTUAL API KEY
+    API_KEY: 'AIzaSyCA71KyUK-Bbxm84YqCtLORYAYOoO-8PPo', // ⚠️ REPLACE WITH YOUR ACTUAL API KEY
     
     // Sheet name (tab name in your Google Sheet)
     // This is the name of the sheet/tab, not the file name
