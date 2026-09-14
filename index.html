@@ -9,12 +9,25 @@
 <body>
     <div class="container">
         <header>
-            <h1>Faculty Timetable</h1>
-            <p class="sync-status" id="syncStatus">🔄 Syncing with Google Sheets...</p>
+            <div class="header-content">
+                <h1>📚 Faculty Timetable Management</h1>
+                <p class="subtitle">Real-time synchronization with Google Sheets</p>
+            </div>
+            
+            <div class="sync-info">
+                <p class="sync-status" id="syncStatus">🔄 Initializing...</p>
+                <p class="last-sync">Last synced: <span id="lastSyncTime">Never</span></p>
+            </div>
+
             <div class="controls">
-                <input type="text" id="searchFaculty" placeholder="Search faculty..." class="search-input">
+                <input 
+                    type="text" 
+                    id="searchFaculty" 
+                    placeholder="🔍 Search faculty by name or department..." 
+                    class="search-input"
+                >
                 <select id="filterDay" class="filter-select">
-                    <option value="">All Days</option>
+                    <option value="">📅 All Days</option>
                     <option value="Monday">Monday</option>
                     <option value="Tuesday">Tuesday</option>
                     <option value="Wednesday">Wednesday</option>
@@ -22,22 +35,22 @@
                     <option value="Friday">Friday</option>
                     <option value="Saturday">Saturday</option>
                 </select>
-                <button id="exportBtn" class="btn btn-primary">📥 Export to CSV</button>
                 <button id="refreshBtn" class="btn btn-secondary">🔄 Refresh Now</button>
+                <button id="exportBtn" class="btn btn-primary">📥 Export to CSV</button>
             </div>
         </header>
 
         <main>
             <section class="faculty-section">
                 <div class="faculty-list">
-                    <h2>Faculty Members</h2>
+                    <h2>👥 Faculty Members</h2>
                     <div id="facultyListContainer" class="faculty-container">
-                        <p class="loading">Loading faculty data...</p>
+                        <p class="loading">⏳ Loading faculty data from Google Sheets...</p>
                     </div>
                 </div>
 
                 <div class="timetable-section">
-                    <h2 id="selectedFacultyTitle">Select a faculty to view timetable</h2>
+                    <h2 id="selectedFacultyTitle">Select a faculty member to view their timetable</h2>
                     <div class="timetable-wrapper">
                         <table id="timetableTable" class="timetable">
                             <thead>
@@ -52,23 +65,73 @@
                                 </tr>
                             </thead>
                             <tbody id="timetableBody">
+                                <tr>
+                                    <td colspan="7" class="empty-state">
+                                        👈 Select a faculty member from the left to view their timetable
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
+                    </div>
+                    
+                    <div class="timetable-info">
+                        <p>💡 <strong>Tips:</strong></p>
+                        <ul>
+                            <li>Click on any faculty member to view their weekly schedule</li>
+                            <li>Use the day filter to view a specific day's classes</li>
+                            <li>Search to quickly find faculty by name or department</li>
+                            <li>Export to CSV for offline viewing or sharing</li>
+                        </ul>
                     </div>
                 </div>
             </section>
 
             <section class="info-section">
-                <p class="info-text">ℹ️ This timetable automatically syncs with your Google Sheet every 30 seconds</p>
+                <div class="info-card">
+                    <h3>🔄 Auto-Sync Information</h3>
+                    <p>This timetable automatically synchronizes with your Google Sheet every 30 seconds. Any changes you make to your Google Sheet will be reflected here automatically.</p>
+                    
+                    <h3>🚀 Quick Setup Guide</h3>
+                    <ol>
+                        <li>Get your Google Sheets API Key from <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a></li>
+                        <li>Update the <code>API_KEY</code> in <code>config.js</code></li>
+                        <li>Share your Google Sheet publicly or with the API Key</li>
+                        <li>Ensure the sheet name and data range match your configuration</li>
+                        <li>Open this page in your browser to see the live data</li>
+                    </ol>
+                </div>
+
+                <div class="info-card">
+                    <h3>📋 Expected Sheet Format</h3>
+                    <p>Your Google Sheet should have the following columns:</p>
+                    <table class="format-table">
+                        <tr>
+                            <td><strong>Column A</strong></td>
+                            <td>Faculty Name</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Column B</strong></td>
+                            <td>Department</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Column C-I</strong></td>
+                            <td>Monday through Saturday (class information)</td>
+                        </tr>
+                    </table>
+                </div>
             </section>
         </main>
 
         <footer>
-            <p>&copy; 2024 Faculty Timetable Management System</p>
-            <p class="last-sync">Last synced: <span id="lastSyncTime">Never</span></p>
+            <div class="footer-content">
+                <p>&copy; 2024 Faculty Timetable Management System</p>
+                <p>Powered by Google Sheets API | Built with ❤️</p>
+                <p class="footer-note">⚡ Real-time sync enabled | 🔒 Secure data handling</p>
+            </div>
         </footer>
     </div>
 
+    <!-- Scripts in order of dependency -->
     <script src="config.js"></script>
     <script src="google-sheets-api.js"></script>
     <script src="script.js"></script>
