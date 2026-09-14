@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Timetable</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Faculty Timetable</h1>
+            <div class="controls">
+                <input type="text" id="searchFaculty" placeholder="Search faculty..." class="search-input">
+                <select id="filterDay" class="filter-select">
+                    <option value="">All Days</option>
+                    <option value="Monday">Monday</option>
+                    <option value="Tuesday">Tuesday</option>
+                    <option value="Wednesday">Wednesday</option>
+                    <option value="Thursday">Thursday</option>
+                    <option value="Friday">Friday</option>
+                    <option value="Saturday">Saturday</option>
+                </select>
+                <button id="exportBtn" class="btn btn-primary">Export to CSV</button>
+                <button id="importBtn" class="btn btn-secondary">Import from Google Sheet</button>
+            </div>
+        </header>
+
+        <main>
+            <section class="faculty-section">
+                <div class="faculty-list">
+                    <h2>Faculty Members</h2>
+                    <div id="facultyListContainer" class="faculty-container"></div>
+                </div>
+
+                <div class="timetable-section">
+                    <h2 id="selectedFacultyTitle">Select a faculty to view timetable</h2>
+                    <div class="timetable-wrapper">
+                        <table id="timetableTable" class="timetable">
+                            <thead>
+                                <tr>
+                                    <th>Time Slot</th>
+                                    <th>Monday</th>
+                                    <th>Tuesday</th>
+                                    <th>Wednesday</th>
+                                    <th>Thursday</th>
+                                    <th>Friday</th>
+                                    <th>Saturday</th>
+                                </tr>
+                            </thead>
+                            <tbody id="timetableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section class="import-section" style="display: none;" id="importSection">
+                <h2>Import Data from Google Sheet</h2>
+                <textarea id="csvInput" placeholder="Paste CSV data from Google Sheet here..."></textarea>
+                <button id="processImportBtn" class="btn btn-primary">Process Import</button>
+                <p class="hint">Export your Google Sheet as CSV and paste the content above</p>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2024 Faculty Timetable Management System</p>
+        </footer>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
