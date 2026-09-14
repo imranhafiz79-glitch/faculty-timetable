@@ -1,325 +1,349 @@
-// Main JavaScript functionality for Faculty Timetable
+// Main Application Script
+// Handles UI updates and real-time synchronization with Google Sheets
 
-let selectedFaculty = null;
-const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+class FacultyTimetableApp {
+    constructor(config) {
+        this.config = config;
+        this.api = new GoogleSheetsAPI(config);
+        this.facultyData = {};
+        this.selectedFaculty = null;
+        this.filteredFaculty = [];
+        this.refreshInterval = null;
+        
+        // DOM Elements
+        this.syncStatus = document.getElementById('syncStatus');
+        this.lastSyncTime = document.getElementById('lastSyncTime');
+        this.facultyListContainer = document.getElementById('facultyListContainer');
+        this.timetableTable = document.getElementById('timetableTable');
+        this.timetableBody = document.getElementById('timetableBody');
+        this.selectedFacultyTitle = document.getElementById('selectedFacultyTitle');
+        this.searchInput = document.getElementById('searchFaculty');
+        this.filterDay = document.getElementById('filterDay');
+        this.refreshBtn = document.getElementById('refreshBtn');
+        this.exportBtn = document.getElementById('exportBtn');
+        
+        this.initializeEventListeners();
+    }
 
-// Initialize the application
-document.addEventListener('DOMContentLoaded', () => {
-    loadFacultyList();
-    setupEventListeners();
-});
-
-// Load and display faculty list
-function loadFacultyList() {
-    const container = document.getElementById('facultyListContainer');
-    container.innerHTML = '';
-
-    facultyData.forEach(faculty => {
-        const facultyItem = document.createElement('div');
-        facultyItem.className = 'faculty-item';
-        facultyItem.textContent = faculty.name;
-        facultyItem.dataset.id = faculty.id;
-
-        facultyItem.addEventListener('click', () => {
-            selectFaculty(faculty.id);
+    /**
+     * Initialize all event listeners
+     */
+    initializeEventListeners() {
+        // Search functionality
+        this.searchInput.addEventListener('input', (e) => {
+            this.filterFacultyList(e.target.value);
         });
 
-        container.appendChild(facultyItem);
-    });
-}
-
-// Select a faculty and display their timetable
-function selectFaculty(facultyId) {
-    selectedFaculty = facultyData.find(f => f.id === facultyId);
-
-    if (!selectedFaculty) return;
-
-    // Update active state
-    document.querySelectorAll('.faculty-item').forEach(item => {
-        item.classList.remove('active');
-        if (parseInt(item.dataset.id) === facultyId) {
-            item.classList.add('active');
-        }
-    });
-
-    // Update title
-    document.getElementById('selectedFacultyTitle').textContent = `${selectedFaculty.name} - ${selectedFaculty.department}`;
-
-    // Render timetable
-    renderTimetable();
-}
-
-// Render the timetable for selected faculty
-function renderTimetable() {
-    if (!selectedFaculty) return;
-
-    const tbody = document.getElementById('timetableBody');
-    tbody.innerHTML = '';
-
-    const timeSlots = Object.keys(selectedFaculty.timetable);
-    const filterDay = document.getElementById('filterDay').value;
-
-    timeSlots.forEach(timeSlot => {
-        const row = document.createElement('tr');
-        const timeCell = document.createElement('td');
-        timeCell.className = 'time-slot';
-        timeCell.textContent = timeSlot;
-        row.appendChild(timeCell);
-
-        const daysToShow = filterDay ? [filterDay] : days;
-
-        daysToShow.forEach(day => {
-            const cell = document.createElement('td');
-            const classInfo = selectedFaculty.timetable[timeSlot][day] || 'Free';
-
-            if (classInfo === 'Free') {
-                cell.innerHTML = `<div class="class-info free">${classInfo}</div>`;
-            } else if (classInfo.toLowerCase().includes('break')) {
-                cell.innerHTML = `<div class="class-info break">${classInfo}</div>`;
-            } else if (classInfo.toLowerCase().includes('lunch')) {
-                cell.innerHTML = `<div class="class-info break">${classInfo}</div>`;
-            } else if (classInfo.toLowerCase().includes('cancelled')) {
-                cell.innerHTML = `<div class="class-info cancelled">${classInfo}</div>`;
-            } else {
-                cell.innerHTML = `<div class="class-info">${classInfo}</div>`;
+        // Day filter
+        this.filterDay.addEventListener('change', (e) => {
+            if (this.selectedFaculty) {
+                this.renderTimetable(this.selectedFaculty, e.target.value);
             }
-
-            row.appendChild(cell);
         });
 
-        tbody.appendChild(row);
-    });
-}
-
-// Setup event listeners
-function setupEventListeners() {
-    // Search faculty
-    document.getElementById('searchFaculty').addEventListener('input', (e) => {
-        filterFacultyList(e.target.value);
-    });
-
-    // Filter by day
-    document.getElementById('filterDay').addEventListener('change', () => {
-        if (selectedFaculty) {
-            renderTimetable();
-        }
-    });
-
-    // Export button
-    document.getElementById('exportBtn').addEventListener('click', exportToCSV);
-
-    // Import button
-    document.getElementById('importBtn').addEventListener('click', () => {
-        document.getElementById('importSection').style.display =
-            document.getElementById('importSection').style.display === 'none' ? 'block' : 'none';
-    });
-
-    // Process import button
-    document.getElementById('processImportBtn').addEventListener('click', processImport);
-}
-
-// Filter faculty list by name
-function filterFacultyList(searchTerm) {
-    const items = document.querySelectorAll('.faculty-item');
-    items.forEach(item => {
-        const facultyName = item.textContent.toLowerCase();
-        if (facultyName.includes(searchTerm.toLowerCase())) {
-            item.style.display = 'block';
-        } else {
-            item.style.display = 'none';
-        }
-    });
-}
-
-// Export timetable to CSV
-function exportToCSV() {
-    if (!selectedFaculty) {
-        alert('Please select a faculty member first');
-        return;
-    }
-
-    let csv = `Faculty Timetable - ${selectedFaculty.name}\n`;
-    csv += `Department: ${selectedFaculty.department}\n`;
-    csv += `Email: ${selectedFaculty.email}\n\n`;
-
-    // Add header row
-    csv += 'Time Slot,' + days.join(',') + '\n';
-
-    // Add timetable data
-    const timeSlots = Object.keys(selectedFaculty.timetable);
-    timeSlots.forEach(timeSlot => {
-        let row = `"${timeSlot}"`;
-        days.forEach(day => {
-            const classInfo = selectedFaculty.timetable[timeSlot][day] || 'Free';
-            row += `,"${classInfo}"`;
+        // Refresh button
+        this.refreshBtn.addEventListener('click', () => {
+            this.syncData();
         });
-        csv += row + '\n';
-    });
 
-    // Download CSV
-    downloadCSV(csv, `${selectedFaculty.name.replace(/\s+/g, '_')}_timetable.csv`);
-}
-
-// Download CSV file
-function downloadCSV(csv, filename) {
-    const link = document.createElement('a');
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-
-    link.href = url;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-}
-
-// Process CSV import from Google Sheet
-function processImport() {
-    const csvInput = document.getElementById('csvInput').value;
-
-    if (!csvInput.trim()) {
-        alert('Please paste CSV data first');
-        return;
+        // Export button
+        this.exportBtn.addEventListener('click', () => {
+            this.exportToCSV();
+        });
     }
 
-    try {
-        const lines = csvInput.trim().split('\n');
-        const headers = lines[0].split(',').map(h => h.trim());
+    /**
+     * Initialize the application
+     */
+    async initialize() {
+        console.log('🚀 Initializing Faculty Timetable App...');
+        try {
+            await this.syncData();
+            this.startAutoSync();
+        } catch (error) {
+            console.error('Failed to initialize app:', error);
+            this.updateSyncStatus('❌ Failed to load data', 'error');
+        }
+    }
 
-        // Validate headers
-        if (headers[0].toLowerCase() !== 'faculty' && headers[0].toLowerCase() !== 'name') {
-            alert('CSV must have a "Faculty" or "Name" column as the first column');
+    /**
+     * Sync data from Google Sheets
+     */
+    async syncData() {
+        try {
+            this.updateSyncStatus('🔄 Syncing with Google Sheets...', 'syncing');
+            
+            const rawData = await this.api.fetchData();
+            this.facultyData = this.api.parseData(rawData);
+            
+            this.renderFacultyList();
+            this.updateSyncStatus('✅ Synced successfully', 'success');
+            this.updateLastSyncTime();
+            
+            return true;
+        } catch (error) {
+            console.error('Sync error:', error);
+            this.updateSyncStatus(`❌ ${error.message}`, 'error');
+            return false;
+        }
+    }
+
+    /**
+     * Start auto-sync with interval
+     */
+    startAutoSync() {
+        // Clear existing interval if any
+        if (this.refreshInterval) {
+            clearInterval(this.refreshInterval);
+        }
+
+        // Set up new interval
+        this.refreshInterval = setInterval(() => {
+            console.log('⏰ Auto-syncing...');
+            this.syncData();
+        }, this.config.REFRESH_INTERVAL);
+
+        console.log(`⏰ Auto-sync started (every ${this.config.REFRESH_INTERVAL / 1000} seconds)`);
+    }
+
+    /**
+     * Stop auto-sync
+     */
+    stopAutoSync() {
+        if (this.refreshInterval) {
+            clearInterval(this.refreshInterval);
+            this.refreshInterval = null;
+            console.log('⏹️ Auto-sync stopped');
+        }
+    }
+
+    /**
+     * Render faculty list
+     */
+    renderFacultyList() {
+        const facultyNames = this.api.getFacultyNames(this.facultyData);
+        this.filteredFaculty = facultyNames;
+
+        this.facultyListContainer.innerHTML = '';
+
+        if (facultyNames.length === 0) {
+            this.facultyListContainer.innerHTML = '<p class="no-data">No faculty data available</p>';
             return;
         }
 
-        // Parse CSV data
-        const importedFaculty = [];
+        const ul = document.createElement('ul');
+        ul.className = 'faculty-list-items';
 
-        for (let i = 1; i < lines.length; i++) {
-            if (!lines[i].trim()) continue;
+        facultyNames.forEach(name => {
+            const li = document.createElement('li');
+            li.className = 'faculty-item';
+            
+            const faculty = this.facultyData[name];
+            li.innerHTML = `
+                <div class="faculty-info">
+                    <strong>${name}</strong>
+                    <span class="department">${faculty.department}</span>
+                </div>
+            `;
 
-            const values = parseCSVLine(lines[i]);
+            li.addEventListener('click', () => {
+                this.selectFaculty(name);
+            });
 
-            const facultyName = values[0];
-            const department = values[1] || 'Department';
+            ul.appendChild(li);
+        });
 
-            const timetable = {};
-            const timeSlots = lines[0].split(',').length > 2 ? 
-                extractTimeSlots(lines) : 
-                generateDefaultTimeSlots();
+        this.facultyListContainer.appendChild(ul);
+    }
 
-            timeSlots.forEach((slot, index) => {
-                if (!timetable[slot]) {
-                    timetable[slot] = {};
+    /**
+     * Filter faculty list based on search term
+     */
+    filterFacultyList(searchTerm) {
+        const term = searchTerm.toLowerCase();
+        const allFaculty = this.api.getFacultyNames(this.facultyData);
+        
+        this.filteredFaculty = allFaculty.filter(name => {
+            const faculty = this.facultyData[name];
+            return name.toLowerCase().includes(term) || 
+                   faculty.department.toLowerCase().includes(term);
+        });
+
+        // Re-render with filtered list
+        this.facultyListContainer.innerHTML = '';
+
+        if (this.filteredFaculty.length === 0) {
+            this.facultyListContainer.innerHTML = '<p class="no-data">No faculty found</p>';
+            return;
+        }
+
+        const ul = document.createElement('ul');
+        ul.className = 'faculty-list-items';
+
+        this.filteredFaculty.forEach(name => {
+            const li = document.createElement('li');
+            li.className = 'faculty-item';
+            
+            const faculty = this.facultyData[name];
+            li.innerHTML = `
+                <div class="faculty-info">
+                    <strong>${name}</strong>
+                    <span class="department">${faculty.department}</span>
+                </div>
+            `;
+
+            li.addEventListener('click', () => {
+                this.selectFaculty(name);
+            });
+
+            ul.appendChild(li);
+        });
+
+        this.facultyListContainer.appendChild(ul);
+    }
+
+    /**
+     * Select a faculty member
+     */
+    selectFaculty(facultyName) {
+        this.selectedFaculty = facultyName;
+        this.selectedFacultyTitle.textContent = `📋 ${facultyName}'s Timetable`;
+        
+        // Highlight selected faculty
+        document.querySelectorAll('.faculty-item').forEach(item => {
+            item.classList.remove('active');
+            if (item.textContent.includes(facultyName)) {
+                item.classList.add('active');
+            }
+        });
+
+        // Reset day filter
+        this.filterDay.value = '';
+        this.renderTimetable(facultyName);
+    }
+
+    /**
+     * Render timetable for selected faculty
+     */
+    renderTimetable(facultyName, dayFilter = '') {
+        const faculty = this.api.getFacultyByName(facultyName, this.facultyData);
+        
+        if (!faculty) {
+            this.timetableBody.innerHTML = '<tr><td colspan="7" class="no-data">Faculty not found</td></tr>';
+            return;
+        }
+
+        const timetable = faculty.timetable;
+        this.timetableBody.innerHTML = '';
+
+        // Get days to display
+        const daysToShow = dayFilter 
+            ? [dayFilter] 
+            : ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+        // Render rows for each time slot
+        this.config.TIME_SLOTS.forEach((timeSlot, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td class="time-slot">${timeSlot}</td>`;
+
+            daysToShow.forEach(day => {
+                const cellData = timetable[day];
+                const cell = document.createElement('td');
+                cell.className = 'class-cell';
+
+                if (cellData && cellData.length > 0) {
+                    const cellContent = cellData
+                        .map(slot => `<div class="class-item">${slot.class}</div>`)
+                        .join('');
+                    cell.innerHTML = cellContent;
+                    cell.classList.add('has-class');
+                } else {
+                    cell.textContent = '-';
                 }
-                days.forEach((day, dayIndex) => {
-                    const valueIndex = dayIndex + 2;
-                    timetable[slot][day] = values[valueIndex] || 'Free';
-                });
+
+                row.appendChild(cell);
             });
 
-            importedFaculty.push({
-                id: facultyData.length + importedFaculty.length + 1,
-                name: facultyName,
-                department: department,
-                email: `${facultyName.replace(/\s+/g, '.')}@university.edu`,
-                timetable: timetable
+            this.timetableBody.appendChild(row);
+        });
+    }
+
+    /**
+     * Export timetable to CSV
+     */
+    exportToCSV() {
+        if (!this.selectedFaculty) {
+            alert('Please select a faculty member first');
+            return;
+        }
+
+        const faculty = this.facultyData[this.selectedFaculty];
+        const lines = [];
+        
+        // Header
+        lines.push(`Faculty Timetable Export - ${this.selectedFaculty}`);
+        lines.push(`Department: ${faculty.department}`);
+        lines.push(`Exported: ${new Date().toLocaleString()}`);
+        lines.push('');
+        
+        // Timetable header
+        lines.push('Time Slot,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday');
+        
+        // Timetable data
+        this.config.TIME_SLOTS.forEach((timeSlot, index) => {
+            const row = [timeSlot];
+            
+            ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].forEach(day => {
+                const cellData = faculty.timetable[day];
+                const cellValue = cellData && cellData.length > 0
+                    ? cellData.map(slot => slot.class).join('; ')
+                    : '-';
+                row.push(`"${cellValue}"`);
             });
-        }
+            
+            lines.push(row.join(','));
+        });
 
-        // Add imported faculty to data
-        facultyData.push(...importedFaculty);
+        // Create and download file
+        const csvContent = lines.join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        
+        link.setAttribute('href', url);
+        link.setAttribute('download', `${this.selectedFaculty}-timetable.csv`);
+        link.style.visibility = 'hidden';
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        console.log('✅ Exported to CSV:', `${this.selectedFaculty}-timetable.csv`);
+    }
 
-        // Reload UI
-        loadFacultyList();
-        document.getElementById('csvInput').value = '';
-        document.getElementById('importSection').style.display = 'none';
+    /**
+     * Update sync status display
+     */
+    updateSyncStatus(message, status = 'default') {
+        this.syncStatus.textContent = message;
+        this.syncStatus.className = `sync-status ${status}`;
+    }
 
-        alert(`Successfully imported ${importedFaculty.length} faculty member(s)`);
-    } catch (error) {
-        alert('Error parsing CSV: ' + error.message);
-        console.error(error);
+    /**
+     * Update last sync time display
+     */
+    updateLastSyncTime() {
+        const now = new Date();
+        this.lastSyncTime.textContent = now.toLocaleTimeString();
     }
 }
 
-// Parse CSV line handling quoted values
-function parseCSVLine(line) {
-    const result = [];
-    let current = '';
-    let insideQuotes = false;
-
-    for (let i = 0; i < line.length; i++) {
-        const char = line[i];
-
-        if (char === '"') {
-            insideQuotes = !insideQuotes;
-        } else if (char === ',' && !insideQuotes) {
-            result.push(current.trim());
-            current = '';
-        } else {
-            current += char;
-        }
-    }
-
-    result.push(current.trim());
-    return result;
-}
-
-// Extract time slots from CSV
-function extractTimeSlots(lines) {
-    const slots = [];
-    for (let i = 1; i < lines.length; i++) {
-        if (lines[i].trim()) {
-            const values = parseCSVLine(lines[i]);
-            slots.push(values[0]);
-        }
-    }
-    return slots;
-}
-
-// Generate default time slots
-function generateDefaultTimeSlots() {
-    return [
-        '08:00-09:00',
-        '09:00-10:00',
-        '10:00-11:00',
-        '11:00-12:00',
-        '12:00-01:00',
-        '01:00-02:00',
-        '02:00-03:00'
-    ];
-}
-
-// Utility function to print timetable
-function printTimetable() {
-    if (!selectedFaculty) {
-        alert('Please select a faculty member first');
-        return;
-    }
-
-    const printWindow = window.open('', '', 'height=600,width=800');
-    printWindow.document.write(`
-        <html>
-        <head>
-            <title>${selectedFaculty.name} Timetable</title>
-            <style>
-                body { font-family: Arial, sans-serif; margin: 20px; }
-                h1 { color: #2c3e50; }
-                table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-                th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
-                th { background-color: #34495e; color: white; }
-                tr:nth-child(even) { background-color: #f9f9f9; }
-            </style>
-        </head>
-        <body>
-            <h1>${selectedFaculty.name}</h1>
-            <p><strong>Department:</strong> ${selectedFaculty.department}</p>
-            <p><strong>Email:</strong> ${selectedFaculty.email}</p>
-            ${document.getElementById('timetableTable').outerHTML}
-        </body>
-        </html>
-    `);
-    printWindow.document.close();
-    printWindow.print();
-}
+// Initialize app when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('📱 DOM Loaded, initializing app...');
+    const app = new FacultyTimetableApp(CONFIG);
+    app.initialize();
+    
+    // Make app available globally for debugging
+    window.app = app;
+});
