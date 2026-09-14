@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Faculty Timetable</title>
+    <title>Faculty Timetable - Auto Sync from Google Sheets</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
         <header>
             <h1>Faculty Timetable</h1>
+            <p class="sync-status" id="syncStatus">🔄 Syncing with Google Sheets...</p>
             <div class="controls">
                 <input type="text" id="searchFaculty" placeholder="Search faculty..." class="search-input">
                 <select id="filterDay" class="filter-select">
@@ -21,8 +22,8 @@
                     <option value="Friday">Friday</option>
                     <option value="Saturday">Saturday</option>
                 </select>
-                <button id="exportBtn" class="btn btn-primary">Export to CSV</button>
-                <button id="importBtn" class="btn btn-secondary">Import from Google Sheet</button>
+                <button id="exportBtn" class="btn btn-primary">📥 Export to CSV</button>
+                <button id="refreshBtn" class="btn btn-secondary">🔄 Refresh Now</button>
             </div>
         </header>
 
@@ -30,7 +31,9 @@
             <section class="faculty-section">
                 <div class="faculty-list">
                     <h2>Faculty Members</h2>
-                    <div id="facultyListContainer" class="faculty-container"></div>
+                    <div id="facultyListContainer" class="faculty-container">
+                        <p class="loading">Loading faculty data...</p>
+                    </div>
                 </div>
 
                 <div class="timetable-section">
@@ -55,20 +58,19 @@
                 </div>
             </section>
 
-            <section class="import-section" style="display: none;" id="importSection">
-                <h2>Import Data from Google Sheet</h2>
-                <textarea id="csvInput" placeholder="Paste CSV data from Google Sheet here..."></textarea>
-                <button id="processImportBtn" class="btn btn-primary">Process Import</button>
-                <p class="hint">Export your Google Sheet as CSV and paste the content above</p>
+            <section class="info-section">
+                <p class="info-text">ℹ️ This timetable automatically syncs with your Google Sheet every 30 seconds</p>
             </section>
         </main>
 
         <footer>
             <p>&copy; 2024 Faculty Timetable Management System</p>
+            <p class="last-sync">Last synced: <span id="lastSyncTime">Never</span></p>
         </footer>
     </div>
 
-    <script src="data.js"></script>
+    <script src="config.js"></script>
+    <script src="google-sheets-api.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
