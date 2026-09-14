@@ -1,287 +1,317 @@
-# Faculty Timetable Management System
+# 📚 Faculty Timetable Management System
 
-A web-based application for managing and displaying individual faculty timetables. This system allows universities and educational institutions to easily organize and view faculty schedules.
+A real-time faculty timetable management application with automatic synchronization to Google Sheets. Display, search, filter, and export faculty schedules effortlessly!
 
-## 📋 Features
+![Status](https://img.shields.io/badge/status-active-brightgreen) ![License](https://img.shields.io/badge/license-MIT-blue) ![Version](https://img.shields.io/badge/version-2.0-orange)
 
-- **Faculty Directory**: Browse all faculty members by name and department
-- **Interactive Timetable**: View detailed weekly schedules for each faculty member
-- **Search Functionality**: Quickly find faculty members by name
-- **Day Filtering**: Filter timetable view by specific days
-- **Export to CSV**: Download faculty timetables for external use
-- **Import from Google Sheets**: Easily import faculty data from CSV format
-- **Print Support**: Print individual faculty timetables
-- **Responsive Design**: Works seamlessly on desktop, tablet, and mobile devices
-- **Visual Status Indicators**: Different colors for classes, breaks, lunch, and free time
+## ✨ Features
 
-## 🚀 Getting Started
+- 📊 **Real-Time Google Sheets Sync** - Automatic data synchronization every 30 seconds
+- 🔍 **Smart Search** - Filter faculty by name or department
+- 📅 **Day Filtering** - View specific day's schedule
+- 📥 **Export to CSV** - Download timetables for offline use
+- 🎨 **Clean UI** - Modern, responsive interface
+- ⚡ **Fast & Reliable** - Lightweight, no dependencies
+- 🔄 **Auto-Refresh** - Configurable sync intervals
+- 📱 **Mobile Friendly** - Works on all devices
+- 🛡️ **Error Handling** - Detailed error messages and troubleshooting
 
-### Prerequisites
-- A modern web browser (Chrome, Firefox, Safari, Edge)
-- No server or backend required - runs entirely in the browser
+## 🚀 Quick Start
 
-### Installation
+### 1. Get Google Sheets API Key
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/imranhafiz79-glitch/faculty-timetable.git
-   cd faculty-timetable
-   ```
+1. Visit [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project
+3. Search for "Google Sheets API" and enable it
+4. Go to **Credentials** → **Create Credentials** → **API Key**
+5. Copy your API Key
 
-2. **Open in browser**
-   - Simply open `index.html` in your web browser
-   - Or use a local web server:
-     ```bash
-     # Using Python 3
-     python -m http.server 8000
-     
-     # Using Node.js http-server
-     npx http-server
-     ```
+### 2. Share Your Google Sheet
 
-3. **Access the application**
-   - Open `http://localhost:8000` (or your server port)
+1. Open your Google Sheet
+2. Click **Share** button
+3. Set to **"Anyone with the link can view"**
 
-## 📖 Usage Guide
+### 3. Update Configuration
 
-### Viewing Faculty Timetables
+Edit `config.js` and replace:
+```javascript
+SHEET_ID: 'your-sheet-id-here'
+API_KEY: 'your-api-key-here'
+SHEET_NAME: 'Faculty Timetable'  // Your sheet tab name
+DATA_RANGE: 'Faculty Timetable!A1:H100'  // Adjust if needed
+```
 
-1. **Select a Faculty Member**
-   - Click on any faculty name in the left sidebar
-   - The faculty's complete timetable will display
+### 4. Format Your Google Sheet
 
-2. **Search Faculty**
-   - Use the search box at the top to find faculty by name
-   - Matches appear in real-time as you type
+Organize your data like this:
 
-3. **Filter by Day**
-   - Use the "All Days" dropdown to view specific days only
-   - Useful for detailed single-day analysis
+| Faculty Name | Department | Monday | Tuesday | Wednesday | Thursday | Friday | Saturday |
+|---|---|---|---|---|---|---|---|
+| Dr. John Smith | Computer Science | CS101 9-10 | Office hrs | CS101 9-10 | Lab 10-11 | CS102 2-3 | - |
+| Prof. Sarah Johnson | Mathematics | MATH201 9-10 | MATH202 10-11 | MATH201 9-10 | Office hrs | MATH203 1-2 | - |
 
-### Exporting Data
+### 5. Open in Browser
 
-1. **Export to CSV**
-   - Select a faculty member
-   - Click "Export to CSV" button
-   - File downloads automatically with faculty name
+Simply open `index.html` in your web browser. Data will load automatically!
 
-2. **CSV Format**
-   The exported file includes:
-   - Faculty name and department
-   - Email address
-   - Complete weekly schedule
-   - Time slots and class information
-
-### Importing from Google Sheets
-
-1. **Prepare Your Data**
-   - Organize data in Google Sheets with columns: Faculty Name, Department, Time Slots, Monday-Saturday
-   - Export the sheet as CSV
-
-2. **Import Process**
-   - Click "Import from Google Sheet" button
-   - Paste CSV content in the text area
-   - Click "Process Import"
-   - New faculty members are added to the system
-
-3. **CSV Format for Import**
-   ```
-   Faculty,Department,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday
-   Dr. John Smith,Computer Science,CS101 - Web Dev,CS201 - Database,...
-   ```
-
-### Printing Timetables
-
-- Select a faculty member
-- Use browser's Print function (Ctrl+P or Cmd+P)
-- Timetable is formatted for clean printing
-
-## 📁 Project Structure
+## 📋 Project Structure
 
 ```
 faculty-timetable/
-├── index.html          # Main HTML structure
-├── styles.css          # Styling and responsive design
-├── data.js             # Sample faculty data
-├── script.js           # Core functionality and logic
-├── README.md           # This file
-└── .gitignore          # Git ignore file
+├── index.html              # Main HTML file
+├── config.js               # Configuration & setup guide
+├── script.js               # Main application logic
+├── google-sheets-api.js    # Google Sheets API wrapper
+├── styles.css              # Styling
+├── README.md               # This file
+└── LICENSE                 # MIT License
 ```
 
-## 🎨 User Interface
+## 🛠️ Configuration Guide
 
-### Header Section
-- Title and application name
-- Search box for faculty lookup
-- Day filter dropdown
-- Export and Import buttons
+### config.js Options
 
-### Main Content Area
-- **Left Sidebar**: Faculty member list with selection
-- **Main Panel**: Selected faculty timetable display
-
-### Timetable Display
-- Time slots in first column
-- Days of week as column headers
-- Color-coded class types:
-  - **Blue**: Regular classes
-  - **Green**: Free time
-  - **Orange**: Breaks and lunch
-  - **Red**: Cancelled classes
-
-## 📊 Data Format
-
-### Faculty Object Structure
 ```javascript
-{
-    id: 1,
-    name: "Dr. John Smith",
-    department: "Computer Science",
-    email: "john.smith@university.edu",
-    timetable: {
-        "08:00-09:00": {
-            "Monday": "CS101 - Web Dev",
-            "Tuesday": "Office Hours",
-            // ... rest of week
-        }
-        // ... rest of time slots
-    }
+CONFIG = {
+    SHEET_ID: '',              // Your Google Sheet ID
+    API_KEY: '',               // Your Google Sheets API Key
+    SHEET_NAME: '',            // Tab name in your sheet
+    DATA_RANGE: '',            // Data range (e.g., 'Sheet!A1:H100')
+    REFRESH_INTERVAL: 30000,   // Sync interval in ms
+    TIME_SLOTS: [...]          // Time slots for display
 }
 ```
 
-## 🔧 Customization
+### Column Mapping
 
-### Adding Sample Data
+By default, columns are:
+- **A**: Faculty Name
+- **B**: Department  
+- **C-H**: Monday through Saturday
 
-Edit `data.js` to add more faculty members:
+Adjust in `config.js` if your layout differs.
 
+## 🎯 Usage
+
+### Searching Faculty
+- Type in the search box to filter by name or department
+- Results update instantly
+
+### Filtering by Day
+- Use the day dropdown to view a specific day's schedule
+- Select "All Days" to see the full week
+
+### Exporting Data
+1. Select a faculty member
+2. Click "Export to CSV"
+3. File downloads to your computer
+
+### Refreshing Data
+- Click "Refresh Now" button to sync immediately
+- Auto-sync happens every 30 seconds (configurable)
+
+## ⚠️ Troubleshooting
+
+### "Access Denied" Error
+```
+❌ Access Denied: Make sure your Google Sheet is shared publicly
+```
+**Solution:** 
+- Open your Google Sheet
+- Click Share → Set to "Anyone with the link can view"
+- Ensure API is enabled in Google Cloud Console
+
+### "Sheet not found" Error
+```
+❌ Sheet not found: Check SHEET_ID and SHEET_NAME
+```
+**Solution:**
+- Extract SHEET_ID from your sheet URL: `https://docs.google.com/spreadsheets/d/[SHEET_ID]/edit`
+- Verify SHEET_NAME matches your tab name (case-sensitive)
+- Check DATA_RANGE covers all your data
+
+### API Key Errors
+```
+❌ Error 403: Access Denied
+```
+**Solution:**
+- Verify API Key is correct and not expired
+- Enable "Google Sheets API" in Google Cloud Console
+- Check if API Key restrictions are too strict
+
+### No Data Loading
+```
+⏳ Loading faculty data from Google Sheets...
+```
+**Solution:**
+- Check browser console (F12) for detailed errors
+- Verify Google Sheet has data in columns A-H
+- Ensure column A (Faculty Name) is not empty
+- Wait 30 seconds for first auto-sync
+
+### Browser Console Debugging
+
+Press **F12** to open developer console and check for:
+- ✅ Green messages = Success
+- 🔄 Blue messages = Syncing
+- ❌ Red messages = Errors
+
+## 📱 Browser Compatibility
+
+| Browser | Support |
+|---------|---------|
+| Chrome | ✅ Full |
+| Firefox | ✅ Full |
+| Safari | ✅ Full |
+| Edge | ✅ Full |
+| IE 11 | ⚠️ Limited |
+
+## 🎨 Customization
+
+### Change Refresh Interval
+Edit `config.js`:
 ```javascript
-const facultyData = [
-    {
-        id: 1,
-        name: "Your Name",
-        department: "Your Department",
-        email: "email@university.edu",
-        timetable: {
-            "08:00-09:00": {
-                "Monday": "CLASS101",
-                "Tuesday": "Office Hours",
-                // ... etc
-            }
-        }
-    }
-    // Add more faculty...
-];
+REFRESH_INTERVAL: 60000  // Change 30000 to 60000 for 60 seconds
 ```
 
-### Modifying Time Slots
-
-In `script.js`, update the `generateDefaultTimeSlots()` function:
-
+### Change Time Slots
+Edit `config.js`:
 ```javascript
-function generateDefaultTimeSlots() {
-    return [
-        '08:00-09:00',
-        '09:00-10:00',
-        // Add or modify time slots as needed
-    ];
-}
+TIME_SLOTS: [
+    '08:30-09:30',
+    '09:30-10:30',
+    // ... add your times
+]
 ```
 
-### Styling Changes
+### Customize Styling
+Edit `styles.css` to change colors, fonts, layout, etc.
 
-Edit `styles.css` to customize:
-- Colors and themes
-- Layout and spacing
-- Responsive breakpoints
-- Font sizes and families
+## 📊 Data Format Examples
 
-## 🌐 Browser Compatibility
+### Simple Format
+```
+Faculty Name | Dept | CS101 9-10 | MATH101 2-3 | ...
+```
 
-- Chrome/Chromium: ✅ Full support
-- Firefox: ✅ Full support
-- Safari: ✅ Full support
-- Edge: ✅ Full support
-- Internet Explorer 11: ⚠️ Limited support
+### Detailed Format
+```
+Faculty Name | Dept | 9-10: CS101, 10-11: Lab | ...
+```
 
-## 📱 Responsive Features
+### Multiple Classes
+```
+Faculty Name | Dept | CS101 9-10, CS102 10-11 | ...
+```
 
-- **Desktop**: Full grid layout with sidebar and main panel
-- **Tablet**: Adapted layout with scrollable timetable
-- **Mobile**: Stacked layout with horizontal scrolling for timetable
+### Free/Break Slots
+```
+Faculty Name | Dept | CS101 9-10 | Break | Office hrs | ...
+```
 
-## 🔒 Data Privacy
+## 🚀 Deployment
 
-- All data is stored locally in the browser
-- No data is sent to external servers
-- Import/Export functions work entirely client-side
-- Clear browser cache to remove all data
+### Local Testing
+1. Open `index.html` directly in browser
+2. Or use a local server: `python -m http.server 8000`
 
-## 🐛 Troubleshooting
+### Deploy to Web
+1. Upload all files to your web server
+2. Update API Key HTTP restrictions (if using domain)
+3. Share sheet URL with others
+4. Everyone can access via your URL
 
-### Issue: Timetable not displaying
-**Solution**: Ensure a faculty member is selected from the left sidebar
+### GitHub Pages
+1. Fork this repository
+2. Enable GitHub Pages in settings
+3. Access via: `https://username.github.io/faculty-timetable`
 
-### Issue: Import not working
-**Solution**: Verify CSV format matches expected structure with correct headers
+## 📈 Performance Tips
 
-### Issue: Export file not downloading
-**Solution**: Check browser download settings and permissions
+- Use smaller `DATA_RANGE` if you have many rows
+- Increase `REFRESH_INTERVAL` to reduce API calls
+- Cache data locally if needed
+- Use API Key restrictions to prevent abuse
 
-### Issue: Layout looks broken on mobile
-**Solution**: Clear browser cache and refresh page (Ctrl+Shift+R)
+## 🐛 Known Issues
 
-## 💡 Tips & Tricks
-
-1. **Keyboard Navigation**: Use Tab to navigate between faculty members
-2. **Quick Search**: Start typing faculty name - search auto-activates
-3. **Batch Operations**: Export multiple timetables and compile in Excel
-4. **Data Backup**: Regularly export faculty data as CSV backup
-5. **Mobile Access**: Bookmark on mobile device for quick access
-
-## 📈 Future Enhancements
-
-Potential features for future versions:
-- Database integration for persistent storage
-- User authentication and role-based access
-- Real-time timetable updates
-- Email notifications for schedule changes
-- Integration with calendar applications
-- Advanced conflict detection
-- Analytics and reporting dashboard
-- Multi-language support
+- CORS may block requests on some networks (solution: ensure sheet is public)
+- API calls limited to 300 per minute (usually not an issue)
+- Large sheets (1000+ rows) may take longer to load
 
 ## 🤝 Contributing
 
-Contributions are welcome! To contribute:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+Feel free to:
+- Report bugs
+- Suggest features
+- Submit pull requests
+- Share improvements
 
 ## 📄 License
 
-This project is open source and available under the MIT License. See LICENSE file for details.
+This project is licensed under the MIT License - see LICENSE file for details.
 
-## 👨‍💼 Support
+## 💡 Tips & Tricks
 
-For issues, questions, or suggestions:
-- Open an GitHub Issue
-- Contact: imranhafiz79@gmail.com
-- Check existing documentation above
+### Bulk Update
+1. Make changes directly in Google Sheet
+2. App auto-syncs within 30 seconds
+3. No manual refresh needed!
 
-## 🙏 Acknowledgments
+### Department Search
+- Search by department name (e.g., "Computer Science")
+- Results show all faculty in that department
 
-- Built with vanilla JavaScript (no external dependencies)
-- Inspired by educational institution scheduling needs
-- Designed for ease of use and accessibility
+### Weekly Planning
+1. Export each faculty's schedule
+2. Print or share CSV files
+3. Great for physical timetables
+
+### Integration Ideas
+- Email notifications for schedule changes
+- SMS alerts for cancellations
+- Calendar integration (iCal format)
+- Attendance tracking
+- Substitute faculty management
+
+## 📞 Support
+
+- Check browser console for error details
+- Review troubleshooting section
+- Verify all configuration values
+- Ensure Google Sheet is public
+- Check API Key is valid
+
+## 🎓 Educational Use
+
+Perfect for:
+- Universities and colleges
+- Schools and institutes
+- Training centers
+- Corporate training
+- Online course management
+
+## ⭐ Features Coming Soon
+
+- 🔔 Email notifications
+- 📧 Email export
+- 📱 Mobile app
+- 🔐 User authentication
+- 📊 Analytics dashboard
+- 🌍 Multi-language support
+- 🎯 Room allocation
+- 👥 Student enrollment tracking
+
+## 📚 Additional Resources
+
+- [Google Sheets API Documentation](https://developers.google.com/sheets/api)
+- [Google Cloud Console](https://console.cloud.google.com/)
+- [REST API Guide](https://sheets.googleapis.com/)
 
 ---
 
-**Version**: 1.0.0  
-**Last Updated**: September 2024  
-**Author**: Imran Hafiz
+**Made with ❤️ for educational institutions worldwide**
 
-Happy scheduling! 📚✨
+Last Updated: September 14, 2024  
+Version: 2.0 (Google Sheets Integration)
