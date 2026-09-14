@@ -24,7 +24,7 @@ const CONFIG = {
     // Data range - adjust based on your sheet structure
     // Format: 'SheetName!A1:H100' (includes Faculty Name, Department, and 6 days)
     // A1:H100 means from cell A1 to H100 (adjust if you have more rows)
-    DATA_RANGE: 'Monday!A35:H135',
+    DATA_RANGE: 'Monday!A1:I140',
     
     // Auto-refresh interval in milliseconds
     // 30000 = 30 seconds (how often to sync with Google Sheets)
