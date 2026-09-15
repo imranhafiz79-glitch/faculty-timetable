@@ -5,7 +5,7 @@ const CONFIG = {
     // Your Google Sheet ID (from the URL)
     // Example URL: https://docs.google.com/spreadsheets/d/1q8hTVuITJAltGci4K-iJiKkaLLsn_KdPNVl0Ro_-7sk/edit
     // Sheet ID: 1q8hTVuITJAltGci4K-iJiKkaLLsn_KdPNVl0Ro_-7sk
-    SHEET_ID: '1q8hTVuITJAltGci4K-iJiKkaLLsn_KdPNVl0Ro_-7sk',
+    SHEET_ID: '11S5-t8he5M2lEepCnx4XuatLOPVaDLHdpvON5R1d-gwI',
     
     // Get your API Key from: https://console.cloud.google.com/apis/credentials
     // Steps:
@@ -24,7 +24,7 @@ const CONFIG = {
     // Data range - adjust based on your sheet structure
     // Format: 'SheetName!A1:H100' (includes Faculty Name, Department, and 6 days)
     // A1:H100 means from cell A1 to H100 (adjust if you have more rows)
-    DATA_RANGE: 'Monday!A1:I140',
+    DATA_RANGE: 'Sheet1!b5:b264',
     
     // Auto-refresh interval in milliseconds
     // 30000 = 30 seconds (how often to sync with Google Sheets)
