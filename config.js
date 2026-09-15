@@ -41,7 +41,8 @@ const CONFIG = {
         THURSDAY: 5,          // Column F - Thursday classes
         FRIDAY: 6,            // Column G - Friday classes
         SATURDAY: 7,          // Column H - Saturday classes
-        DAYS: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+        SUNDAY: 8,
+        DAYS: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday','Sunday']
     },
     
     // Time slots - configure these to match your institution's schedule
@@ -51,14 +52,15 @@ const CONFIG = {
         '09:00-10:00',
         '10:00-11:00',
         '11:00-12:00',
-        '12:00-01:00 (Lunch)',
+        '12:00-01:00',
         '01:00-02:00',
-        '02:00-03:00'
+        '02:00-03:00',
+        '03:00-4:00'
     ]
 };
 
 // Days of the week (used throughout the application)
-const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday','Sunday'];
 
 // ============================================================================
 // 📋 SETUP INSTRUCTIONS FOR GOOGLE SHEETS INTEGRATION
